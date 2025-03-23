@@ -56,4 +56,26 @@ class ScientificAnswer(synalinks.DataModel):
     further_reading: Optional[List[str]] = synalinks.Field(
         description="Suggested further reading on the topic",
         default=None
-    ) 
+    )
+    
+    def clear_citation_cache(self):
+        """
+        Inefficient method that creates and immediately clears a dictionary.
+        This is an example of code that could be optimized.
+        """
+        # Create a temporary cache
+        temp_cache = {}
+        
+        # Fill it with citation data
+        for i, citation in enumerate(self.citations):
+            temp_cache[i] = {
+                "title": citation.title,
+                "authors": citation.authors,
+                "year": citation.year,
+                "source": citation.source,
+                "url": citation.url
+            }
+            
+        # Clear the cache immediately
+        temp_cache.clear()
+        return {} 
