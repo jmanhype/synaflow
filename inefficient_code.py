@@ -1,8 +1,11 @@
 """
 This module contains deliberately inefficient code to test optimization processes.
+Includes multiple examples of code that could be optimized.
 """
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 import time
+import math
+import random
 
 
 def slow_fibonacci(n: int) -> int:
@@ -111,6 +114,72 @@ def global_variable_function() -> None:
 counter = 0
 
 
+def inefficient_sorting(data: List[int]) -> List[int]:
+    """
+    Implement an inefficient bubble sort algorithm.
+    
+    Args:
+        data: The list to sort
+        
+    Returns:
+        Sorted list
+    """
+    # Make a copy to avoid modifying the original
+    result = data.copy()
+    n = len(result)
+    
+    # Bubble sort implementation
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if result[j] > result[j + 1]:
+                # Swap elements
+                result[j], result[j + 1] = result[j + 1], result[j]
+    
+    return result
+
+
+def calculate_primes_inefficiently(n: int) -> List[int]:
+    """
+    Calculate prime numbers up to n using a naive approach.
+    
+    Args:
+        n: Upper limit for finding primes
+        
+    Returns:
+        List of prime numbers
+    """
+    primes = []
+    for num in range(2, n + 1):
+        is_prime = True
+        # Check if num is divisible by any number from 2 to num-1
+        for i in range(2, num):
+            if num % i == 0:
+                is_prime = False
+                break
+        if is_prime:
+            primes.append(num)
+    return primes
+
+
+def deep_nested_loops(n: int) -> List[Tuple[int, int, int]]:
+    """
+    Create a list of tuples using deeply nested loops.
+    
+    Args:
+        n: Upper limit for loop iterations
+        
+    Returns:
+        List of tuples with values
+    """
+    result = []
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                if i + j + k < n:
+                    result.append((i, j, k))
+    return result
+
+
 class InefficientClass:
     """A class with inefficient methods and attribute access."""
     
@@ -155,6 +224,66 @@ class InefficientClass:
             "max": max(self.values),
             "min": min(self.values)
         }
+        
+    def inefficient_search(self, target: int) -> bool:
+        """
+        Search for a value in the list inefficiently.
+        
+        Args:
+            target: The value to search for
+            
+        Returns:
+            True if found, False otherwise
+        """
+        # Create a new list each time
+        temp_list = self.values.copy()
+        
+        # Linear search
+        for item in temp_list:
+            if item == target:
+                return True
+        return False
+
+
+class MemoryHog:
+    """A class that inefficiently uses memory."""
+    
+    def __init__(self, size: int = 1000):
+        """Initialize with a size.
+        
+        Args:
+            size: The size of data to generate
+        """
+        self.size = size
+        # Generate a lot of unnecessary data
+        self.data = {}
+        for i in range(size):
+            # Create redundant copies of data
+            self.data[i] = [random.randint(1, 100) for _ in range(size // 10)]
+    
+    def process_data(self) -> Dict[int, List[int]]:
+        """
+        Process the data inefficiently.
+        
+        Returns:
+            Processed data
+        """
+        result = {}
+        # Create new lists for each item
+        for key, values in self.data.items():
+            # Create a new list for each key
+            result[key] = []
+            # Process each value individually
+            for value in values:
+                # Perform redundant calculations
+                processed = int(math.sqrt(value) * 10)
+                result[key].append(processed)
+                # Add unnecessary extra processing
+                temp = []
+                for i in range(len(result[key])):
+                    temp.append(result[key][i])
+                result[key] = temp
+        return result
 
 
 if __name__ == "__main__":
@@ -179,4 +308,17 @@ if __name__ == "__main__":
     obj = InefficientClass("test", numbers)
     obj.process_values()
     stats = obj.get_stats()
-    print(f"Object stats: {stats}") 
+    print(f"Object stats: {stats}")
+    
+    # Test prime calculation
+    primes = calculate_primes_inefficiently(100)
+    print(f"Found {len(primes)} prime numbers")
+    
+    # Test inefficient sorting
+    sorted_nums = inefficient_sorting(random.sample(range(100), 20))
+    print(f"Sorted {len(sorted_nums)} numbers")
+    
+    # Test memory intensive operations
+    memory_hog = MemoryHog(500)
+    processed = memory_hog.process_data()
+    print(f"Processed {len(processed)} items from memory hog") 
