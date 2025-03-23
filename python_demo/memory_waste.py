@@ -40,13 +40,29 @@ def slow_matrix_operations(size: int) -> List[List[int]]:
         transposed.append(new_row)
     return transposed
 
+def unbounded_cache_function(max_items: int) -> Dict[str, int]:
+    """Function with unbounded memory growth due to no cache limits."""
+    cache = {}
+    for i in range(max_items):
+        # Generate a new key for each item
+        key = f"item_{i}_{time.time()}"
+        # Store value in cache without any size limit
+        cache[key] = i * i
+        # Perform some useless operations to waste memory
+        temp_list = []
+        for j in range(i % 100):
+            temp_list.append("x" * 1000)
+    return cache
+
 if __name__ == "__main__":
     start_time = time.time()
     dict_result = memory_inefficient_dict_handling(1000)
     list_result = inefficient_list_operations(list(range(100)))
     matrix_result = slow_matrix_operations(50)
+    cache_result = unbounded_cache_function(500)
     elapsed = time.time() - start_time
     print(f"Completed operations in {elapsed:.2f} seconds")
     print(f"Dictionary size: {len(dict_result)}")
     print(f"List size: {len(list_result)}")
     print(f"Matrix size: {len(matrix_result)}x{len(matrix_result[0])}")
+    print(f"Cache size: {len(cache_result)}")
