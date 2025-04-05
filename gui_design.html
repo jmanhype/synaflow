@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynaFlow - Scientific Question Answering</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --text-color: #333;
+            --light-text: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            padding-bottom: 2rem;
+        }
+        
+        .navbar {
+            background-color: var(--secondary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+        }
+        
+        .navbar-brand span {
+            color: var(--primary-color);
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+        
+        .question-form {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+        
+        .btn-outline-secondary {
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .answer-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .answer-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .answer-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .answer-section h3 {
+            color: var(--secondary-color);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .confidence-indicator {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .confidence-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+        }
+        
+        .citation-item {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: var(--light-bg);
+            border-radius: 5px;
+        }
+        
+        .citation-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .citation-authors {
+            font-style: italic;
+            color: #6c757d;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .history-item {
+            cursor: pointer;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            background-color: var(--light-bg);
+            transition: all 0.2s ease;
+        }
+        
+        .history-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .history-question {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .history-domain {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 767.98px) {
+            .hero-section {
+                padding: 2rem 0;
+            }
+            
+            .question-form, .answer-container {
+                padding: 1.5rem;
+            }
+            
+            .answer-section h3 {
+                font-size: 1.1rem;
+            }
+            
+            .citation-item {
+                padding: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 575.98px) {
+            .hero-title {
+                font-size: 1.75rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .btn-primary, .btn-outline-secondary {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Syna<span>Flow</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Documentation</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="hero-title">Scientific Question Answering</h1>
+            <p class="hero-subtitle">Get accurate scientific answers with citations using advanced language models</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <!-- Question Form -->
+            <div class="col-lg-8">
+                <div class="question-form">
+                    <h2 class="mb-4">Ask a Scientific Question</h2>
+                    <form id="questionForm">
+                        <div class="mb-3">
+                            <label for="question" class="form-label">Your Question</label>
+                            <textarea class="form-control" id="question" rows="3" placeholder="e.g., What is quantum entanglement?" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="domain" class="form-label">Domain (Optional)</label>
+                            <select class="form-select" id="domain">
+                                <option value="">Select a domain</option>
+                                <option value="physics">Physics</option>
+                                <option value="biology">Biology</option>
+                                <option value="chemistry">Chemistry</option>
+                                <option value="astronomy">Astronomy</option>
+                                <option value="mathematics">Mathematics</option>
+                                <option value="computer_science">Computer Science</option>
+                                <option value="earth_science">Earth Science</option>
+                                <option value="medicine">Medicine</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="context" class="form-label">Additional Context (Optional)</label>
+                            <textarea class="form-control" id="context" rows="2" placeholder="Any additional context for your question"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between form-actions">
+                            <button type="submit" class="btn btn-primary">Submit Question</button>
+                            <button type="reset" class="btn btn-outline-secondary">Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Processing your question...</p>
+                </div>
+
+                <!-- Answer Container -->
+                <div class="answer-container" id="answerContainer">
+                    <h2 class="mb-4">Scientific Answer</h2>
+                    
+                    <!-- Background Section -->
+                    <div class="answer-section">
+                        <h3>Background</h3>
+                        <p id="backgroundText"></p>
+                    </div>
+                    
+                    <!-- Reasoning Section -->
+                    <div class="answer-section">
+                        <h3>Reasoning</h3>
+                        <p id="reasoningText"></p>
+                    </div>
+                    
+                    <!-- Answer Section -->
+                    <div class="answer-section">
+                        <h3>Answer</h3>
+                        <p id="answerText"></p>
+                    </div>
+                    
+                    <!-- Confidence Section -->
+                    <div class="answer-section">
+                        <h3>Confidence</h3>
+                        <div class="confidence-indicator">
+                            <div class="confidence-bar" id="confidenceBar"></div>
+                        </div>
+                        <p id="confidenceText"></p>
+                    </div>
+                    
+                    <!-- Citations Section -->
+                    <div class="answer-section">
+                        <h3>Citations</h3>
+                        <div id="citationsList"></div>
+                    </div>
+                    
+                    <!-- Further Reading Section -->
+                    <div class="answer-section">
+                        <h3>Further Reading</h3>
+                        <ul id="furtherReadingList"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="question-form">
+                    <h3 class="mb-3">Question History</h3>
+                    <div id="historyList">
+                        <p class="text-muted">No questions asked yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questionForm = document.getElementById('questionForm');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const answerContainer = document.getElementById('answerContainer');
+            const historyList = document.getElementById('historyList');
+            
+            // Store question history
+            let questionHistory = [];
+            
+            // Form submission handler
+            questionForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const question = document.getElementById('question').value;
+                const domain = document.getElementById('domain').value;
+                const context = document.getElementById('context').value;
+                
+                // Show loading spinner
+                loadingSpinner.style.display = 'block';
+                answerContainer.style.display = 'none';
+                
+                // Simulate API call (replace with actual API call)
+                setTimeout(function() {
+                    // Hide loading spinner
+                    loadingSpinner.style.display = 'none';
+                    
+                    // Process the response
+                    processResponse({
+                        question: question,
+                        domain: domain,
+                        context: context,
+                        result: {
+                            background: "Quantum entanglement is a phenomenon in quantum physics where two or more particles become correlated in such a way that the quantum state of each particle cannot be described independently of the others, regardless of the distance separating them.",
+                            reasoning: "When particles interact physically and then become separated, a quantum state can be instantiated where the properties of each particle are correlated with the other, despite potentially vast distances between them. This correlation persists even when measurements are made on either particle, seemingly instantaneously affecting the other particle's state, which Einstein famously referred to as 'spooky action at a distance.'",
+                            answer: "Quantum entanglement occurs when pairs or groups of particles interact in ways such that the quantum state of each particle cannot be described independently of the others, even when separated by large distances. When one entangled particle is measured, the corresponding measurement of its partner will show correlations that would be impossible under classical physics, regardless of the distance between them.",
+                            confidence: 0.95,
+                            citations: [
+                                {
+                                    title: "Quantum Entanglement and Information",
+                                    authors: ["Einstein, A.", "Podolsky, B.", "Rosen, N."],
+                                    year: 1935,
+                                    source: "Physical Review",
+                                    url: "https://example.com/paper1"
+                                },
+                                {
+                                    title: "Experimental Tests of Quantum Mechanics",
+                                    authors: ["Bell, J.S."],
+                                    year: 1964,
+                                    source: "Physics",
+                                    url: "https://example.com/paper2"
+                                }
+                            ],
+                            further_reading: [
+                                "Quantum Computation and Quantum Information by Nielsen and Chuang",
+                                "Entanglement: The Greatest Mystery in Physics by Amir Aczel"
+                            ]
+                        }
+                    });
+                }, 2000);
+            });
+            
+            // Process and display the response
+            function processResponse(data) {
+                // Add to history
+                questionHistory.unshift(data);
+                updateHistory();
+                
+                // Display answer
+                document.getElementById('backgroundText').textContent = data.result.background;
+                document.getElementById('reasoningText').textContent = data.result.reasoning;
+                document.getElementById('answerText').textContent = data.result.answer;
+                
+                // Update confidence
+                const confidenceBar = document.getElementById('confidenceBar');
+                const confidenceText = document.getElementById('confidenceText');
+                const confidence = data.result.confidence * 100;
+                confidenceBar.style.width = confidence + '%';
+                confidenceText.textContent = `${confidence.toFixed(1)}% confidence`;
+                
+                // Update citations
+                const citationsList = document.getElementById('citationsList');
+                citationsList.innerHTML = '';
+                
+                if (data.result.citations.length === 0) {
+                    citationsList.innerHTML = '<p class="text-muted">No citations available.</p>';
+                } else {
+                    data.result.citations.forEach(citation => {
+                        const citationItem = document.createElement('div');
+                        citationItem.className = 'citation-item';
+                        
+                        const title = document.createElement('div');
+                        title.className = 'citation-title';
+                        title.textContent = citation.title;
+                        
+                        const authors = document.createElement('div');
+                        authors.className = 'citation-authors';
+                        authors.textContent = citation.authors.join(', ');
+                        
+                        const details = document.createElement('div');
+                        details.textContent = `${citation.source} (${citation.year})`;
+                        
+                        const link = document.createElement('a');
+                        link.href = citation.url;
+                        link.textContent = 'View Source';
+                        link.className = 'btn btn-sm btn-outline-primary mt-2';
+                        link.target = '_blank';
+                        
+                        citationItem.appendChild(title);
+                        citationItem.appendChild(authors);
+                        citationItem.appendChild(details);
+                        citationItem.appendChild(link);
+                        
+                        citationsList.appendChild(citationItem);
+                    });
+                }
+                
+                // Update further reading
+                const furtherReadingList = document.getElementById('furtherReadingList');
+                furtherReadingList.innerHTML = '';
+                
+                if (data.result.further_reading.length === 0) {
+                    furtherReadingList.innerHTML = '<p class="text-muted">No further reading suggestions available.</p>';
+                } else {
+                    data.result.further_reading.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = item;
+                        furtherReadingList.appendChild(listItem);
+                    });
+                }
+                
+                // Show answer container
+                answerContainer.style.display = 'block';
+            }
+            
+            // Update history list
+            function updateHistory() {
+                historyList.innerHTML = '';
+                
+                if (questionHistory.length === 0) {
+                    historyList.innerHTML = '<p class="text-muted">No questions asked yet.</p>';
+                } else {
+                    questionHistory.forEach((item, index) => {
+                        const historyItem = document.createElement('div');
+                        historyItem.className = 'history-item';
+                        historyItem.dataset.index = index;
+                        
+                        const question = document.createElement('div');
+                        question.className = 'history-question';
+                        question.textContent = item.question;
+                        
+                        historyItem.appendChild(question);
+                        
+                        if (item.domain) {
+                            const domain = document.createElement('div');
+                            domain.className = 'history-domain';
+                            domain.textContent = `Domain: ${item.domain}`;
+                            historyItem.appendChild(domain);
+                        }
+                        
+                        historyItem.addEventListener('click', function() {
+                            const index = parseInt(this.dataset.index);
+                            processResponse(questionHistory[index]);
+                        });
+                        
+                        historyList.appendChild(historyItem);
+                    });
+                }
+            }
+            
+            // Initialize with empty history
+            updateHistory();
+        });
+    </script>
+</body>
+</html>
