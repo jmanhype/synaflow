@@ -9,6 +9,7 @@ A scientific question answering system built with SynaLinks, leveraging language
 - API for integration with other applications
 - Customizable examples for improved responses
 - Docker support for easy deployment
+- **Responsive GUI** for desktop, tablet, and mobile devices
 
 ## Getting Started
 
@@ -22,7 +23,7 @@ A scientific question answering system built with SynaLinks, leveraging language
 
 1. Clone the repository
    ```
-   git clone https://github.com/yourusername/synaflow.git
+   git clone https://github.com/jmanhype/synaflow.git
    cd synaflow
    ```
 
@@ -49,7 +50,13 @@ A scientific question answering system built with SynaLinks, leveraging language
    python examples/simplified_demo.py
    ```
 
-3. Start the API server
+3. Start the API server with GUI
+   ```
+   python api/app.py
+   ```
+   Then open your browser and navigate to `http://localhost:8000`
+
+4. Or start the API server without GUI (legacy)
    ```
    python api/app_direct.py
    ```
@@ -65,6 +72,18 @@ A scientific question answering system built with SynaLinks, leveraging language
    ```
    curl http://localhost:8000/health
    ```
+
+## Using the Responsive GUI
+
+The SynaFlow application now includes a responsive GUI that works on desktop, tablet, and mobile devices:
+
+1. **Ask Questions**: Enter your scientific question, optionally select a domain, and provide additional context if needed.
+
+2. **View Structured Answers**: Receive comprehensive answers with background information, reasoning, confidence level, citations, and further reading recommendations.
+
+3. **Question History**: Access your previous questions and answers from the sidebar.
+
+4. **Mobile-Friendly**: The interface adapts to different screen sizes for a seamless experience on any device.
 
 ## API Usage
 
@@ -111,7 +130,8 @@ Response:
 ```
 synaflow/
 ├── api/                 # API implementation
-│   └── app_direct.py    # FastAPI application
+│   ├── app.py           # FastAPI application with GUI
+│   └── app_direct.py    # FastAPI application (legacy)
 ├── examples/            # Example scripts and demos
 │   ├── simplified_demo.py
 │   ├── comparison_test.py
@@ -126,7 +146,12 @@ synaflow/
 │   ├── simplified_program.py # Simplified implementation
 │   ├── training.py      # Training utilities
 │   └── utils.py         # Utility functions
+├── static/              # Static files for GUI
+│   ├── css/             # CSS stylesheets
+│   ├── js/              # JavaScript files
+│   └── index.html       # Main HTML file
 ├── tests/               # Test suite
+├── documentation.md     # Detailed documentation
 ├── .env.example         # Example environment variables
 ├── docker-compose.yml   # Docker Compose configuration
 ├── Dockerfile           # Docker build configuration
@@ -141,4 +166,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Acknowledgments
 
 - SynaLinks for the underlying framework
-- OpenAI for language model APIs 
