@@ -2,7 +2,17 @@ import synalinks
 from typing import List, Optional
 
 class ScientificQuery(synalinks.DataModel):
-    """Scientific question input model."""
+    """
+    Scientific question input model.
+
+    This model represents a scientific query with an optional domain specification
+    and contextual information to help generate more accurate and relevant answers.
+
+    Attributes:
+        question: The scientific question to be answered
+        domain: Optional scientific domain (e.g., physics, biology, chemistry)
+        context: Optional additional context for the question
+    """
     question: str = synalinks.Field(
         description="The scientific question to be answered"
     )
@@ -16,7 +26,19 @@ class ScientificQuery(synalinks.DataModel):
     )
 
 class Citation(synalinks.DataModel):
-    """Citation for scientific sources."""
+    """
+    Citation for scientific sources.
+
+    This model represents a bibliographic citation with all necessary metadata
+    for referencing scientific sources including papers, books, and online resources.
+
+    Attributes:
+        title: Title of the source
+        authors: List of author names
+        year: Optional publication year
+        source: Source type or name (journal, book, website, etc.)
+        url: Optional URL to access the source
+    """
     title: str = synalinks.Field(
         description="Title of the source"
     )
@@ -36,7 +58,21 @@ class Citation(synalinks.DataModel):
     )
 
 class ScientificAnswer(synalinks.DataModel):
-    """Comprehensive scientific answer model."""
+    """
+    Comprehensive scientific answer model.
+
+    This model represents a complete scientific answer with background context,
+    reasoning, citations, and recommendations for further reading. It provides
+    a structured format for presenting scientific information with proper attribution.
+
+    Attributes:
+        background: Background information and context for the question
+        reasoning: Step-by-step reasoning process and explanation
+        answer: Clear and concise answer to the question
+        confidence: Confidence score between 0 and 1 indicating answer reliability
+        citations: List of scientific citations supporting the answer
+        further_reading: Optional list of recommended resources for deeper understanding
+    """
     background: str = synalinks.Field(
         description="Background information and context for the question"
     )

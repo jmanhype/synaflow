@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -77,38 +77,53 @@ async def health_check():
 async def query(request: Request):
     try:
         # Parse the request body
-        data = await request.json()
-        
+        try:
+            data = await request.json()
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Invalid JSON in request body")
+
         # Extract query parameters
         question = data.get("question")
         domain = data.get("domain")
         context = data.get("context")
-        
+
         if not question:
             raise HTTPException(status_code=400, detail="Question is required")
-        
+
+        if not isinstance(question, str) or len(question.strip()) == 0:
+            raise HTTPException(status_code=400, detail="Question must be a non-empty string")
+
+        # Validate question length
+        if len(question) > 1000:
+            raise HTTPException(status_code=400, detail="Question too long (max 1000 characters)")
+
         # Create query object
         query_obj = {
-            "question": question,
+            "question": question.strip(),
             "domain": domain,
             "context": context
         }
-        
+
         # Process the query
         if qa_system is None:
-            raise HTTPException(status_code=500, detail="QA system not initialized")
-        
-        result = await qa_system(query_obj)
-        
+            raise HTTPException(status_code=503, detail="QA system not initialized. Please try again later.")
+
+        try:
+            result = await asyncio.wait_for(qa_system(query_obj), timeout=30.0)
+        except asyncio.TimeoutError:
+            raise HTTPException(status_code=504, detail="Query processing timeout. Please try a simpler question.")
+
         # Return the response
         return {
             "request_id": "req-" + os.urandom(8).hex(),
             "timestamp": asyncio.get_event_loop().time(),
             "result": result
         }
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error processing query: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -116,12 +131,13 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Serve index.html for the root path
 @app.get("/")
 async def read_root():
-    with open(os.path.join("static", "index.html"), "r") as f:
-        html_content = f.read()
-    return HTMLResponse(content=html_content, status_code=200)
-
-# Add HTML response class
-from fastapi.responses import HTMLResponse
+    try:
+        static_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static", "index.html")
+        with open(static_path, "r") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content, status_code=200)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Frontend not found. Please ensure static/index.html exists.")
 
 if __name__ == "__main__":
     import uvicorn

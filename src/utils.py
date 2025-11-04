@@ -53,24 +53,38 @@ def load_json_file(file_path: str) -> Dict[str, Any]:
 def save_json_file(data: Dict[str, Any], file_path: str, pretty: bool = True) -> None:
     """
     Save data to a JSON file.
-    
+
     Args:
         data: Data to save
         file_path: Path to save the file
         pretty: Whether to format the JSON with indentation
-        
+
     Raises:
         IOError: If the file cannot be written
+        ValueError: If the data cannot be serialized to JSON
     """
+    if not file_path:
+        raise ValueError("file_path cannot be empty")
+
     # Create directory if it doesn't exist
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    
+    dir_path = os.path.dirname(file_path)
+    if dir_path:  # Only create if there's a directory component
+        try:
+            os.makedirs(dir_path, exist_ok=True)
+        except OSError as e:
+            raise IOError(f"Failed to create directory {dir_path}: {e}")
+
     # Write the file
-    with open(file_path, 'w', encoding='utf-8') as f:
-        if pretty:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        else:
-            json.dump(data, f, ensure_ascii=False)
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            if pretty:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            else:
+                json.dump(data, f, ensure_ascii=False)
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"Failed to serialize data to JSON: {e}")
+    except OSError as e:
+        raise IOError(f"Failed to write to file {file_path}: {e}")
 
 def format_citation(citation: Dict[str, Any]) -> str:
     """
